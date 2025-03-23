@@ -1,0 +1,16 @@
+{
+  "importOrder": [
+    "^@/lib/(.*)$",
+    "^@/constants$",
+    "^@/components/ui(/.*)?$",
+    "^@/components/(.*)$",
+    "^@/pages(/.*)?$",
+    "^@/App$",
+    "^@/hooks/(.*)$",
+    "^[./]"
+  ],
+  "plugins": [
+    "@trivago/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss"
+  ]
+}

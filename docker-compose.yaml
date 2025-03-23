@@ -1,0 +1,30 @@
+services:
+  client:
+    build: client/
+    command: npm run dev
+    volumes:
+      - ./client/src:/app/src
+    ports:
+      - '5173:5173'
+
+  spacetime:
+    profiles: [ stind ]
+    image: clockworklabs/spacetime:latest
+    user: root
+    command: start
+    environment:
+      HOME: /home/spacetime
+    volumes:
+      - ./server:/app
+      - ./client/src/lib/module_bindings:/client-app/src/lib/module_bindings
+      - ./.docker/spacetime/data:/home/spacetime/.local/share/spacetime/data
+    ports:
+      - '3000:3000'
+
+  nginx:
+    profiles: [ nind ]
+    image: nginx:1.27-alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
