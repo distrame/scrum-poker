@@ -1,14 +1,7 @@
 import { Identity } from "@clockworklabs/spacetimedb-sdk";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useInterval } from "usehooks-ts";
 import { DbConnection, ErrorContext } from "@/lib/module_bindings";
-import { useVisibilityChange } from "@/hooks/useVisibilityChange";
 import { Splashscreen } from "./Splashscreen";
 
 const AUTH_TOKEN_KEY = "authToken";
@@ -39,23 +32,17 @@ export function StDbConnProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(AUTH_TOKEN_KEY, token);
   };
 
-  const onDisconnect = () => {
+  const reset = () => {
     setState(undefined);
 
     localStorage.removeItem(AUTH_TOKEN_KEY);
   };
 
-  const connectIfNotConnected = useCallback(() => {
+  useEffect(() => {
     if (!state?.conn.isActive) {
-      connect({ onConnect, onDisconnect });
+      connect({ onConnect, onDisconnect: reset, onConnectError: reset });
     }
   }, [state]);
-
-  useEffect(() => {
-    connectIfNotConnected();
-  }, [connectIfNotConnected]);
-
-  useVisibilityChange({ onVisible: () => connectIfNotConnected() });
 
   if (!state) {
     return <Splashscreen />;
@@ -71,6 +58,7 @@ export function StDbConnProvider({ children }: { children: React.ReactNode }) {
 function connect({
   onConnect,
   onDisconnect,
+  onConnectError,
 }: {
   onConnect: (
     conn: DbConnection,
@@ -78,6 +66,7 @@ function connect({
     token: string,
   ) => void;
   onDisconnect: (ctx: ErrorContext, error?: Error | undefined) => void;
+  onConnectError: (ctx: ErrorContext, error: Error) => void;
 }) {
   DbConnection.builder()
     .withUri(import.meta.env.VITE_SPACETIMEDB_URL)
@@ -85,6 +74,7 @@ function connect({
     .withToken(localStorage.getItem(AUTH_TOKEN_KEY) || "")
     .onConnect(onConnect)
     .onDisconnect(onDisconnect)
+    .onConnectError(onConnectError)
     .build();
 }
 
