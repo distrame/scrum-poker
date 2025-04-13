@@ -10,7 +10,13 @@ import { useCurrentPlayer } from "@/components/CurrentPlayerProvider";
 import { PlayerCardFront } from "@/components/PlayerCard";
 import { useStDbConn } from "@/components/StDbConnProvider";
 
-export function PlayerHandCards({ handCards }: { handCards: string[] }) {
+export function PlayerHandCards({
+  handCards,
+  onCardClicked,
+}: {
+  handCards: string[];
+  onCardClicked?: () => void;
+}) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const { conn } = useStDbConn();
@@ -19,6 +25,7 @@ export function PlayerHandCards({ handCards }: { handCards: string[] }) {
 
   const toggleCard = (value: string) => {
     conn.reducers.setCard(value === currentPlayer.card ? undefined : value);
+    onCardClicked?.();
   };
 
   return (

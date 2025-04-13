@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useReward } from "react-rewards";
 import { useMediaQuery } from "usehooks-ts";
 import {
   Button,
@@ -22,6 +24,13 @@ export function RoomLayout() {
 
   const [currentRoomName] = useCurrentRoomName();
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const { reward } = useReward("confettiReward", "confetti", {
+    spread: 360,
+    startVelocity: isDesktop ? 30 : 10,
+  });
+
   const playersMap = useStDbTableRowsMap(conn.db.player, (player) =>
     player.id.toHexString(),
   );
@@ -33,20 +42,33 @@ export function RoomLayout() {
     return a.name.localeCompare(b.name);
   });
 
+  const areAllCardsTheSame =
+    sortedPlayers.length > 0 &&
+    sortedPlayers[0].card !== undefined &&
+    sortedPlayers.every((player) => player.card === sortedPlayers[0].card);
+
+  useEffect(() => {
+    if (areAllCardsTheSame) {
+      setIsDrawerOpen(false);
+
+      reward();
+
+      setTimeout(() => {
+        conn.reducers.setCard(undefined);
+      }, 3000);
+    }
+  }, [conn, areAllCardsTheSame, reward]);
+
   return (
     <>
-      <PlayersCardsTable
-        players={sortedPlayers}
-        areCardsShown={
-          sortedPlayers.length > 0 &&
-          sortedPlayers.every((player) => player.card)
-        }
-      />
+      <span id="confettiReward" />
+
+      <PlayersCardsTable players={sortedPlayers} />
 
       {isDesktop ? (
         <PlayerHand className="md:absolute md:bottom-5 md:flex md:w-3xl md:flex-row md:gap-0 xl:w-4xl" />
       ) : (
-        <Drawer>
+        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
           <DrawerTrigger asChild>
             <Button className="fixed bottom-5">
               <CardsIcon className="w-auto" />
@@ -58,7 +80,7 @@ export function RoomLayout() {
             <DrawerDescription />
 
             <div className="flex w-full flex-col items-center overflow-y-auto p-5">
-              <PlayerHand className="w-fit" />
+              <PlayerHand onCardClicked={() => setIsDrawerOpen(false)} />
             </div>
           </DrawerContent>
         </Drawer>

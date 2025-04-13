@@ -4,13 +4,10 @@ import {
   PlayerCardWithTitleContainer,
 } from "@/components/PlayerCard";
 
-export function PlayersCardsTable({
-  players,
-  areCardsShown,
-}: {
-  players: Player[];
-  areCardsShown: boolean;
-}) {
+export function PlayersCardsTable({ players }: { players: Player[] }) {
+  const areCardsShown =
+    players.length > 0 && players.every((player) => player.card);
+
   return (
     <div className="flex w-full flex-col items-center gap-4">
       <div className="flex w-full flex-wrap justify-center gap-4">

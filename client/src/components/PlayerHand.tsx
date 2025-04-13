@@ -13,7 +13,13 @@ const CARDS_BY_HAND_TYPE = {
 
 type HandType = keyof typeof CARDS_BY_HAND_TYPE;
 
-export function PlayerHand({ className }: { className?: string }) {
+export function PlayerHand({
+  className,
+  onCardClicked,
+}: {
+  className?: string;
+  onCardClicked?: () => void;
+}) {
   const [roomName] = useCurrentRoomName();
 
   const [handType, setHandType] = useLocalStorage<HandType>(
@@ -38,7 +44,7 @@ export function PlayerHand({ className }: { className?: string }) {
         setHandType={setHandType as (handType: string) => void}
       />
 
-      <PlayerHandCards handCards={handCards} />
+      <PlayerHandCards handCards={handCards} onCardClicked={onCardClicked} />
     </div>
   );
 }
