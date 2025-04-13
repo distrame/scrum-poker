@@ -7,59 +7,55 @@ A simple web application for [Scrum Poker](https://en.wikipedia.org/wiki/Plannin
 * [![React][React.js]][React-url]
 * [![SpacetimeDB][SpacetimeDB.com]][SpacetimeDB-url]
 
-## Usage
+## Development
 
-Add to `/etc/hosts`
+### Requirements
 
-```text
-127.0.0.1 poker.localhost
-127.0.0.1 api.poker.localhost
-```
+* [Node.js/npm](https://nodejs.org/en/download) or any package manager of your choice
+* [Spacetime](https://spacetimedb.com/install) (Required only for self-hosted SpacetimeDb server)
 
-If using nginx not in docker, make a link file to nginx config
+Any requirement may be replaced with [Docker](https://docs.docker.com/engine/install)
 
-```shell
-sudo ln -s /path/to/repo/nginx.conf /etc/nginx/sites-enabled/scrum-poker.conf
+### Run
 
-sudo nginx -t && sudo nginx -s reload
-```
+The app will be available at <http://localhost:5173>
 
-### With docker
+#### With docker
 
 Start containers
 
 ```shell
-# starts client and spacetimedb server containers (recommended)
-docker compose --profile stind up --build
+# starts only spacetimedb server container
+docker compose --profile stdb up --build
 
 # starts only client container
-docker compose up --build
+docker compose --profile client up --build
 
-# starts containers for client, spacetimedb server and also nginx (recommended for windows)
-docker compose --profile stind --profile nind up --build
+# starts both containers
+docker compose --profile all up --build
 ```
 
-Publish SpacetimeDb server module
+Publish SpacetimeDb server module to local server
 
 ```shell
-docker compose --profile stind exec spacetime spacetime publish -y scrum-poker
+docker compose --profile stdb exec spacetime spacetime publish -y scrum-poker
 ```
 
 If server code changed, generate client code
 
 ```shell
-docker compose --profile stind exec spacetime spacetime generate --lang typescript -o /client-app/src/lib/module_bindings/
+docker compose --profile stdb exec spacetime spacetime generate --lang typescript -o /client-app/src/lib/module_bindings/
 ```
 
 Stop and remove containers
 
 ```shell
-docker compose --profile stind --profile nind down
+docker compose --profile all down
 ```
 
-### No docker
+#### No docker
 
-#### Server
+##### Server
 
 If self-hosted, start spacetime server
 
@@ -71,13 +67,13 @@ Publish SpacetimeDb server module
 
 ```shell
 # Hosted at https://spacetimedb.com
-spacetime publish -p server/ -s maincloud poker
+spacetime publish -p server/ -s maincloud scrum-poker
 
 # Hosted locally (by default at http://localhost:3000)
-spacetime publish -y -p server/ -s local poker
+spacetime publish -y -p server/ -s local scrum-poker
 
 # Hosted at <url>
-spacetime publish -p server/ -s <url> poker
+spacetime publish -p server/ -s <url> scrum-poker
 ```
 
 If server code changed, generate client code
@@ -86,7 +82,7 @@ If server code changed, generate client code
 spacetime generate --lang typescript -o client/src/lib/module_bindings/ -p server/
 ```
 
-#### Client
+##### Client
 
 Install dependencies and run dev server
 
